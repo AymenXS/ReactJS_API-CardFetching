@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 import { colorNameList } from 'color-name-list';
 import { DNA } from 'react-loader-spinner';
 
-const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
+const Card = ({
+  name = 'User Name',
+  hair_color = 'Hair Color',
+  skin_color = 'Skin Color',
+  gender = 'Gender',
+  vehicles = 'Total Vehicles',
+}) => {
   const getColor = (name) => {
     const color = colorNameList.find(
       (color) => color.name === name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
@@ -83,7 +89,7 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
                 height="80"
                 width="80"
                 ariaLabel="dna-loading"
-                wrapperStyle={{}}
+  
                 wrapperClass="dna-wrapper"
               />
             ) : (
@@ -95,11 +101,11 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
         </div>
 
         <h4 className="name">{name}</h4>
-        <div className="description">
-          <p className="hair-color">{hair_color}</p>
-          <p className="skin-color">{skin_color}</p>
-          <p className="gender">{gender === 'n/a' ? 'Not Available' : gender}</p>
-          <p className="vehicles-count">{vehicle}</p>
+        <div className="descriptions">
+          <p className="hair-color">Hair Color: {hair_color}</p>
+          <p className="skin-color">Skin Color: {skin_color}</p>
+          <p className="gender">Gender: {gender === 'n/a' ? 'Not Available' : gender}</p>
+          <p className="vehicles-count">Total Vehicles: {vehicles.length}</p>
         </div>
       </>
     </Container>

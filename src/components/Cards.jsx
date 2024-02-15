@@ -8,9 +8,10 @@ import { Hourglass } from 'react-loader-spinner';
 const Cards = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [cardsData, setCardsData] = useState([]);
-  const [nextPageUrl, setNextPageUrl] = useState(null);
-  const [previousPageUrl, setPreviousPageUrl] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(null);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchData('https://swapi.dev/api/people/');
@@ -21,8 +22,9 @@ const Cards = () => {
       setIsLoading(true);
       const response = await axios(url);
       setCardsData(response.data.results);
-      setNextPageUrl(response.data.next);
-      setPreviousPageUrl(response.data.previous);
+      if (response.data.next === null) {
+        setLastPage(currentPage);
+      }
       setIsLoading(false);
       setError(null);
     } catch (error) {
@@ -32,45 +34,78 @@ const Cards = () => {
     }
   };
 
+  const fetchPage = (page) => {
+    setCurrentPage(page);
+    fetchData(`https://swapi.dev/api/people/?search=${searchQuery}&page=${page}`);
+  };
+
   const fetchNextPage = () => {
-    if (nextPageUrl) {
-      fetchData(nextPageUrl);
+    if (lastPage) {
+      return;
     }
+    fetchPage(currentPage + 1);
   };
 
   const fetchPreviousPage = () => {
-    if (previousPageUrl) {
-      fetchData(previousPageUrl);
+    if (currentPage === 1) {
+      return;
     }
+    setLastPage(null);
+    fetchPage(currentPage - 1);
+  };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setCurrentPage(1);
+    fetchData(`https://swapi.dev/api/people/?search=${searchQuery}`);
   };
 
   return (
-    <Container>
+    <>
       {error ? (
         <div className="error-message">{error}</div>
       ) : (
         <>
-          {isLoading && (
-            <div className="loader">
-              <Hourglass
-                visible={true}
-                height="80"
-                width="80"
-                ariaLabel="hourglass-loading"
-                wrapperStyle={{}}
-                wrapperClass=""
-                colors={['#306cce', '#72a1ed']}
-              />
-            </div>
-          )}
-          <IoArrowBackOutline className="left-arrow" onClick={fetchPreviousPage} />
-          {cardsData.map((cardData, index) => (
-            <Card key={index} {...cardData} />
-          ))}
-          <IoArrowForwardOutline className="right-arrow" onClick={fetchNextPage} />
+          <form onSubmit={handleSubmit} className="form">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search characters..."
+              className="input-text"
+            />
+            <button type="submit" className="submit">
+              Search
+            </button>
+          </form>
+
+          <Container>
+            {isLoading && (
+              <div className="loader">
+                <Hourglass
+                  visible={true}
+                  height="80"
+                  width="80"
+                  ariaLabel="hourglass-loading"
+                  wrapperClass=""
+                  colors={['#306cce', '#72a1ed']}
+                />
+              </div>
+            )}
+
+            <IoArrowBackOutline className="left-arrow" onClick={fetchPreviousPage} />
+            {cardsData.map((cardData, index) => (
+              <Card key={index} {...cardData} />
+            ))}
+            <IoArrowForwardOutline className="right-arrow" onClick={fetchNextPage} />
+          </Container>
         </>
       )}
-    </Container>
+    </>
   );
 };
 
