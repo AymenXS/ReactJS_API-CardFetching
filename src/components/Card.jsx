@@ -39,7 +39,7 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageData, setImageData] = useState();
   const [apiAvailable, setApiAvailable] = useState(true);
-  const url = 'https://picsum.photos/200/300s';
+  const url = 'https://picsum.photos/200/300';
 
   const fetchData = async () => {
     try {
@@ -54,6 +54,7 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
       const imageSrc = URL.createObjectURL(blob);
       setImageData(imageSrc);
       setIsLoading(false);
+      setApiAvailable(true);
     } catch (error) {
       console.error('Error fetching data:', error);
       setApiAvailable(false); // Set API availability state to false
@@ -73,10 +74,10 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
         color: isColorDark(backgroundColor) ? 'white' : '',
       }}
     >
-      {apiAvailable ? (
-        <>
-          <div className="image-container">
-            {isLoading ? (
+      <>
+        <div className="image-container">
+          {apiAvailable ? (
+            isLoading ? (
               <DNA
                 visible={true}
                 height="80"
@@ -87,29 +88,20 @@ const Card = ({ name, hair_color, skin_color, gender, vehicle }) => {
               />
             ) : (
               <img className="card-image" src={imageData} alt="Card-Image" />
-            )}
-          </div>
+            )
+          ) : (
+            <div className="error-message">Image is not available</div>
+          )}
+        </div>
 
-          <h4 className="name">{name}</h4>
-          <div className="description">
-            <p className="hair-color">{hair_color}</p>
-            <p className="skin-color">{skin_color}</p>
-            <p className="gender">{gender === 'n/a' ? 'Not Available' : gender}</p>
-            <p className="vehicles-count">{vehicle}</p>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="image-container">API is not available</div>
-          <h4 className="name">{name}</h4>
-          <div className="description">
-            <p className="hair-color">{hair_color}</p>
-            <p className="skin-color">{skin_color}</p>
-            <p className="gender">{gender === 'n/a' ? 'Not Available' : gender}</p>
-            <p className="vehicles-count">{vehicle}</p>
-          </div>
-        </>
-      )}
+        <h4 className="name">{name}</h4>
+        <div className="description">
+          <p className="hair-color">{hair_color}</p>
+          <p className="skin-color">{skin_color}</p>
+          <p className="gender">{gender === 'n/a' ? 'Not Available' : gender}</p>
+          <p className="vehicles-count">{vehicle}</p>
+        </div>
+      </>
     </Container>
   );
 };

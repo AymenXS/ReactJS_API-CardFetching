@@ -10,14 +10,11 @@ const Cards = () => {
   const [cardsData, setCardsData] = useState([]);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [previousPageUrl, setPreviousPageUrl] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchData('https://swapi.dev/api/people/');
   }, []);
-
-  useEffect(() => {
-    console.log(cardsData);
-  }, [cardsData]);
 
   const fetchData = async (url) => {
     try {
@@ -27,8 +24,11 @@ const Cards = () => {
       setNextPageUrl(response.data.next);
       setPreviousPageUrl(response.data.previous);
       setIsLoading(false);
+      setError(null);
     } catch (error) {
       console.log(error.response);
+      setIsLoading(false);
+      setError('Server is down. Please try again later.');
     }
   };
 
@@ -46,24 +46,30 @@ const Cards = () => {
 
   return (
     <Container>
-      {isLoading && (
-        <div className="loader">
-          <Hourglass
-            visible={true}
-            height="80"
-            width="80"
-            ariaLabel="hourglass-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            colors={['#306cce', '#72a1ed']}
-          />
-        </div>
+      {error ? (
+        <div className="error-message">{error}</div>
+      ) : (
+        <>
+          {isLoading && (
+            <div className="loader">
+              <Hourglass
+                visible={true}
+                height="80"
+                width="80"
+                ariaLabel="hourglass-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+                colors={['#306cce', '#72a1ed']}
+              />
+            </div>
+          )}
+          <IoArrowBackOutline className="left-arrow" onClick={fetchPreviousPage} />
+          {cardsData.map((cardData, index) => (
+            <Card key={index} {...cardData} />
+          ))}
+          <IoArrowForwardOutline className="right-arrow" onClick={fetchNextPage} />
+        </>
       )}
-      <IoArrowBackOutline className="left-arrow" onClick={fetchPreviousPage} />
-      {cardsData.map((cardData, index) => (
-        <Card key={index} {...cardData} />
-      ))}
-      <IoArrowForwardOutline className="right-arrow" onClick={fetchNextPage} />
     </Container>
   );
 };
